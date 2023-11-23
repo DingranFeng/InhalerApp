@@ -17,6 +17,9 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 import androidx.annotation.NonNull;
 import android.widget.TextView;
@@ -25,7 +28,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.content.Context;
-
+import android.bluetooth.le.ScanRecord;
+import android.os.ParcelUuid;
 
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 123;
@@ -33,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
     private TextView connectionStatus;
+    private TextView rBLE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,14 +48,16 @@ public class MainActivity extends AppCompatActivity {
         // Permissions for BLE scanning in Android 12 and above
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH,
+                    Manifest.permission.BLUETOOTH_SCAN,
                     Manifest.permission.BLUETOOTH_CONNECT,
                     Manifest.permission.BLUETOOTH_ADMIN,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSION_REQUEST_CODE);
         }
         connectionStatus = findViewById(R.id.connection_status);
-
+        rBLE = findViewById(R.id.rBLE);
 
     }
 
@@ -73,24 +80,119 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
-            Log.d("BLE", "Start scanning.");
+//            Log.d("BLE", "Start scanning.");
             connectionStatus.setText("Bluetooth available");
 
             bluetoothLeScanner.startScan(new ScanCallback() {
                 @Override
                 public void onScanResult(int callbackType, ScanResult result) {
+//                    Log.d("BLE", "onScanResult");
                     super.onScanResult(callbackType, result);
+                    ScanRecord scanRecord = result.getScanRecord();
                     // Check for the specific service UUID
-                    if (result.getScanRecord() != null &&
-                            result.getScanRecord().getServiceUuids() != null &&
-                            result.getScanRecord().getServiceUuids().contains(UUID.fromString("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c"))) {
-                        // Update the connection status
-                        runOnUiThread(() -> connectionStatus.setText("connected"));
-                    }
+//                    if (scanRecord != null &&
+//                            scanRecord.getServiceUuids() != null &&
+//                            scanRecord.getServiceUuids().contains(UUID.fromString("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c"))) {
+//                        // Update the connection status
+//                        runOnUiThread(() -> connectionStatus.setText("connected"));
+//                    }
+
+
+//                    if (scanRecord != null) {
+//                        // Get Service UUIDs
+//                        List<ParcelUuid> serviceUuids = scanRecord.getServiceUuids();
+//                        if (serviceUuids != null && !serviceUuids.isEmpty()) {
+//                            // Print all Service UUIDs
+//                            for (ParcelUuid uuid : serviceUuids) {
+//                                Log.d("BLE Service", "Scanned UUID: " + uuid.toString());
+//                                if (uuid.toString().equals("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c")) {
+//                                    Log.d("BLE Service", "Find target BLE Service!");
+//                                    BluetoothDevice device = result.getDevice();
+//                                    connectToDevice(device);
+//                                }
+//                            }
+//                        }
+//                    } else {
+//                        Log.d("BLE", "ScanRecord is null.");
+//                    }
+
+                    BluetoothDevice device = result.getDevice();
+                    connectToDevice(device);
                 }
             });
         } else {
             Log.d("BLE", "Not start scanning.");
+        }
+    }
+
+    private void connectToDevice(BluetoothDevice device) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+//            Log.d("connectToDevice", "connectToDevice");
+            BluetoothGatt bluetoothGatt = device.connectGatt(this, false, new BluetoothGattCallback() {
+                @Override
+                public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+                    Log.d("onConnectionStateChange", "onConnectionStateChange");
+                    if (newState == BluetoothProfile.STATE_CONNECTED) {
+                        // Connected successfully to the device
+                        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+                            Log.d("discoverServices", "discoverServices");
+                            gatt.discoverServices();
+//                            Log.d("discoverServices", "discoverServices");
+                        }
+                        runOnUiThread(() -> connectionStatus.setText("Connected to device!"));
+                    }
+                }
+
+                @Override
+                public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+                    Log.d("onServicesDiscovered", "onServicesDiscovered");
+                    if (status == BluetoothGatt.GATT_SUCCESS) {
+                        // Service discovery is successful and characteristics can be read
+                        Log.d("GATT_SUCCESS", "GATT_SUCCESS");
+                        BluetoothGattService service = gatt.getService(UUID.fromString("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c"));
+                        runOnUiThread(() -> connectionStatus.setText("Connected to service!"));
+                        if (service != null) {
+                            Log.d("service", "not empty");
+                            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+                                // Read characteristics
+                                BluetoothGattCharacteristic rBLE = service.getCharacteristic(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"));
+                                BluetoothGattCharacteristic gBLE = service.getCharacteristic(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"));
+                                BluetoothGattCharacteristic bBLE = service.getCharacteristic(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"));
+                                if (rBLE != null) {
+                                    gatt.readCharacteristic(rBLE);
+                                    runOnUiThread(() -> rBLE.setWriteType(Integer.parseInt(rBLE.toString())));
+                                    Log.d("rBLE", rBLE.toString());
+                                }
+                                if (gBLE != null) {
+                                    Log.d("gBLE", gBLE.toString());
+                                }
+                                if (bBLE != null) {
+                                    Log.d("bBLE", bBLE.toString());
+                                }
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+                    Log.d("onCharacteristicRead", "onCharacteristicRead");
+                    if (status == BluetoothGatt.GATT_SUCCESS) {
+                        // 读取特性的值
+                        final byte[] data = characteristic.getValue();
+                        // 将字节转换为您想要的格式，比如字符串
+                        final String rBLEValue = new String(data, StandardCharsets.UTF_8);
+
+                        // 在UI线程上更新TextView
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                rBLE.setText(rBLEValue);
+                            }
+                        });
+                    }
+                }
+            });
         }
     }
 
