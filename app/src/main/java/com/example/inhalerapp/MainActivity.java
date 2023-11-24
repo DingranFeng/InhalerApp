@@ -1,14 +1,20 @@
 package com.example.inhalerapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Build;
 import android.os.Bundle;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
+
 import androidx.core.content.ContextCompat;
+
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+
 import androidx.core.app.ActivityCompat;
+
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.bluetooth.BluetoothDevice;
@@ -21,9 +27,13 @@ import android.bluetooth.BluetoothProfile;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
+
 import androidx.annotation.NonNull;
+
 import android.widget.TextView;
+
 import java.util.Arrays;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.util.Log;
@@ -37,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
     private boolean isScanning = false;
-
+    BluetoothDevice device;
     private TextView connectionStatus;
     private TextView rBLE;
 
@@ -50,12 +60,12 @@ public class MainActivity extends AppCompatActivity {
         // Permissions for BLE scanning in Android 12 and above
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.BLUETOOTH,
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    Manifest.permission.BLUETOOTH_ADMIN,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION},
+                            Manifest.permission.BLUETOOTH,
+                            Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.BLUETOOTH_CONNECT,
+                            Manifest.permission.BLUETOOTH_ADMIN,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_CODE);
         }
         connectionStatus = findViewById(R.id.connection_status);
@@ -64,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startBleScan() {
-//        Log.d("startBleScan", "startBleScan");
+        Log.d("startBleScan", "startBleScan");
         // Initialize Bluetooth manager and adapter
         bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager != null) {
@@ -104,32 +114,44 @@ public class MainActivity extends AppCompatActivity {
 //                    }
 
 
-//                        if (scanRecord != null) {
-//                            // Get Service UUIDs
-//                            List<ParcelUuid> serviceUuids = scanRecord.getServiceUuids();
-//                            if (serviceUuids != null && !serviceUuids.isEmpty()) {
-//                                // Print all Service UUIDs
-//                                for (ParcelUuid uuid : serviceUuids) {
-//                                    Log.d("BLE Service", "Scanned UUID: " + uuid.toString());
-//                                    if (uuid.toString().equals("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c")) {
-//                                        Log.d("BLE Service", "Find target BLE Service!");
-//                                        BluetoothDevice device = result.getDevice();
-//                                        connectToDevice(device);
-//                                    }
-//                                }
-//                            }
-//                        } else {
-//                            Log.d("BLE", "ScanRecord is null.");
-//                        }
+                        if (scanRecord != null) {
+                            // Get Service UUIDs
+                            List<ParcelUuid> serviceUuids = scanRecord.getServiceUuids();
+                            if (serviceUuids != null && !serviceUuids.isEmpty()) {
+                                // Print all Service UUIDs
+                                for (ParcelUuid uuid : serviceUuids) {
+                                    Log.d("BLE Service", "Scanned UUID: " + uuid.toString());
+                                    if (uuid.toString().equals("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c")) {
+                                        Log.d("BLE Service", "Find target BLE Service!");
+                                        BluetoothDevice device = result.getDevice();
+                                        connectToDevice(device);
+                                        if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                                            // TODO: Consider calling
+                                            //    ActivityCompat#requestPermissions
+                                            // here to request the missing permissions, and then overriding
+                                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                            //                                          int[] grantResults)
+                                            // to handle the case where the user grants the permission. See the documentation
+                                            // for ActivityCompat#requestPermissions for more details.
 
-                        BluetoothDevice device = result.getDevice();
-                        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
-                            Log.d("Stop Scanning", "Stop Scanning");
-                            bluetoothLeScanner.stopScan(new ScanCallback() {
-                            });
-                            isScanning = false;
+                                        }
+                                        bluetoothLeScanner.stopScan(this);
+                                        Log.d("Stop Scan", "Stop Scan");
+                                        isScanning = false;
+                                    }
+                                }
+                            }
+                        } else {
+                            Log.d("BLE", "ScanRecord is null.");
                         }
-                        connectToDevice(device);
+
+//                        device = result.getDevice();
+//                        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+//                            Log.d("Stop Scanning", "Stop Scanning");
+//                            bluetoothLeScanner.stopScan(this);
+//                            isScanning = false;
+//                        }
+//                        connectToDevice(device);
                     }
                 });
             }
@@ -147,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                     Log.d("onConnectionStateChange", "onConnectionStateChange");
                     if (newState == BluetoothProfile.STATE_CONNECTED) {
+                        Log.d("1", "1");
                         // Connected successfully to the device
                         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
                             Log.d("discoverServices", "discoverServices");
@@ -159,34 +182,51 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+
                     Log.d("onServicesDiscovered", "onServicesDiscovered");
                     if (status == BluetoothGatt.GATT_SUCCESS) {
+                        List<BluetoothGattService> services = gatt.getServices();
                         // Service discovery is successful and characteristics can be read
                         Log.d("GATT_SUCCESS", "GATT_SUCCESS");
 
-                        BluetoothGattService service = gatt.getService(UUID.fromString("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c"));
-                        runOnUiThread(() -> connectionStatus.setText("Connected to service!"));
-                        if (service != null) {
-                            Log.d("service", "not empty");
-                            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
-                                // Read characteristics
-                                BluetoothGattCharacteristic rBLE = service.getCharacteristic(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"));
-                                BluetoothGattCharacteristic gBLE = service.getCharacteristic(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"));
-                                BluetoothGattCharacteristic bBLE = service.getCharacteristic(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"));
-                                if (rBLE != null) {
-                                    gatt.readCharacteristic(rBLE);
-                                    runOnUiThread(() -> rBLE.setWriteType(Integer.parseInt(rBLE.toString())));
-                                    Log.d("rBLE", rBLE.toString());
-                                }
-                                if (gBLE != null) {
-                                    Log.d("gBLE", gBLE.toString());
-                                }
-                                if (bBLE != null) {
-                                    Log.d("bBLE", bBLE.toString());
+
+
+                             for(BluetoothGattService service : services){
+                                Log.d("UUID", service.getUuid().toString());
+                                if (service.getUuid().equals("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c")) {
+                                    BluetoothGattCharacteristic rBLE = service.getCharacteristic(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"));
+                                    BluetoothGattCharacteristic gBLE = service.getCharacteristic(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"));
+                                    BluetoothGattCharacteristic bBLE = service.getCharacteristic(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"));
+                                    if (rBLE != null) {
+                                        if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                                            // TODO: Consider calling
+                                            //    ActivityCompat#requestPermissions
+                                            // here to request the missing permissions, and then overriding
+                                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                            //                                          int[] grantResults)
+                                            // to handle the case where the user grants the permission. See the documentation
+                                            // for ActivityCompat#requestPermissions for more details.
+                                            return;
+                                        }
+                                        gatt.readCharacteristic(rBLE);
+                                        runOnUiThread(() -> rBLE.setWriteType(Integer.parseInt(rBLE.toString())));
+                                        Log.d("rBLE", rBLE.toString());
+                                    }
+                                    if (gBLE != null) {
+                                        Log.d("gBLE", gBLE.toString());
+                                    }
+                                    if (bBLE != null) {
+                                        Log.d("bBLE", bBLE.toString());
+                                    }
+
+
                                 }
                             }
-                        }
+
                     }
+
+
+
                 }
 
                 @Override
