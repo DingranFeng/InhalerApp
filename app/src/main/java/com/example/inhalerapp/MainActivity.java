@@ -195,17 +195,31 @@ public class MainActivity extends AppCompatActivity {
                 public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
                     Log.d("onCharacteristicRead", "onCharacteristicRead");
                     if (status == BluetoothGatt.GATT_SUCCESS) {
-                        // 读取特性的值
+                        // Read characteristic value
                         final byte[] data = characteristic.getValue();
-                        // 将字节转换为您想要的格式，比如字符串
+
                         final String rBLEValue = new String(data, StandardCharsets.UTF_8);
 
-                        // 在UI线程上更新TextView
+                        // Detect medication dumping
+                        int counterAll = 7;
+                        int counterSatisfied = 0;
+                        if (Integer.parseInt(rBLEValue) >= 3 && Integer.parseInt(rBLEValue) <= 12) {
+                            counterSatisfied++;
+                        }
+//                        if (Integer.parseInt(gBLEValue) >= 1 && Integer.parseInt(gBLEValue) <= 5) {
+//                            counterSatisfied++;
+//                        }
+
+                        if ((float) counterSatisfied / (float) counterAll > 0.5) {
+                            Log.d("Warning", "Medication dumping!");
+                        }
+
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 rBLE.setText(rBLEValue);
                             }
+
                         });
                     }
                 }
