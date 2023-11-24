@@ -193,10 +193,15 @@ public class MainActivity extends AppCompatActivity {
 
                              for(BluetoothGattService service : services){
                                 Log.d("UUID", service.getUuid().toString());
-                                if (service.getUuid().equals("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c")) {
+                                if (service.getUuid().toString().equals("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c"))
+                                {
+                                    Log.d("UUID", "equals");
+
                                     BluetoothGattCharacteristic rBLE = service.getCharacteristic(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"));
                                     BluetoothGattCharacteristic gBLE = service.getCharacteristic(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"));
                                     BluetoothGattCharacteristic bBLE = service.getCharacteristic(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"));
+
+                                    Log.d("GATT CHARs", "" + rBLE + " " + gBLE + " " + bBLE);
                                     if (rBLE != null) {
                                         if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                                             // TODO: Consider calling
@@ -206,11 +211,8 @@ public class MainActivity extends AppCompatActivity {
                                             //                                          int[] grantResults)
                                             // to handle the case where the user grants the permission. See the documentation
                                             // for ActivityCompat#requestPermissions for more details.
-                                            return;
                                         }
                                         gatt.readCharacteristic(rBLE);
-                                        runOnUiThread(() -> rBLE.setWriteType(Integer.parseInt(rBLE.toString())));
-                                        Log.d("rBLE", rBLE.toString());
                                     }
                                     if (gBLE != null) {
                                         Log.d("gBLE", gBLE.toString());
@@ -234,7 +236,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("onCharacteristicRead", "onCharacteristicRead");
                     if (status == BluetoothGatt.GATT_SUCCESS) {
                         // Read characteristic value
-                        final byte[] data = characteristic.getValue();
+                        int intValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                        Log.d("SUCC", "Read value: " + intValue);
+
+                        /*final byte[] data = characteristic.getValue();
 
                         final String rBLEValue = new String(data, StandardCharsets.UTF_8);
 
@@ -258,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
                                 rBLE.setText(rBLEValue);
                             }
 
-                        });
+                        });*/
                     }
                 }
             });
