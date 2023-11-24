@@ -123,6 +123,12 @@ public class MainActivity extends AppCompatActivity {
 //                        }
 
                         BluetoothDevice device = result.getDevice();
+                        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+                            Log.d("Stop Scanning", "Stop Scanning");
+                            bluetoothLeScanner.stopScan(new ScanCallback() {
+                            });
+                            isScanning = false;
+                        }
                         connectToDevice(device);
                     }
                 });
@@ -157,15 +163,7 @@ public class MainActivity extends AppCompatActivity {
                     if (status == BluetoothGatt.GATT_SUCCESS) {
                         // Service discovery is successful and characteristics can be read
                         Log.d("GATT_SUCCESS", "GATT_SUCCESS");
-                        if (isScanning) {
-                            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
-                                Log.d("Stop Scanning", "Stop Scanning");
-                                bluetoothLeScanner.stopScan(new ScanCallback() {
-                                });
-                                isScanning = false;
 
-                            }
-                        }
                         BluetoothGattService service = gatt.getService(UUID.fromString("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c"));
                         runOnUiThread(() -> connectionStatus.setText("Connected to service!"));
                         if (service != null) {
