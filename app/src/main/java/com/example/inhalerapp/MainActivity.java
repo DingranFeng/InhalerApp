@@ -36,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
+    private boolean isScanning = false;
+
     private TextView connectionStatus;
     private TextView rBLE;
 
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startBleScan() {
-
+//        Log.d("startBleScan", "startBleScan");
         // Initialize Bluetooth manager and adapter
         bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager != null) {
@@ -81,15 +83,19 @@ public class MainActivity extends AppCompatActivity {
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
 //            Log.d("BLE", "Start scanning.");
-            connectionStatus.setText("Bluetooth available");
 
-            bluetoothLeScanner.startScan(new ScanCallback() {
-                @Override
-                public void onScanResult(int callbackType, ScanResult result) {
+            if (!isScanning) {
+                connectionStatus.setText("Scanning...");
+                isScanning = true;
+
+                Log.d("Start Scanning", "Start Scanning");
+                bluetoothLeScanner.startScan(new ScanCallback() {
+                    @Override
+                    public void onScanResult(int callbackType, ScanResult result) {
 //                    Log.d("BLE", "onScanResult");
-                    super.onScanResult(callbackType, result);
-                    ScanRecord scanRecord = result.getScanRecord();
-                    // Check for the specific service UUID
+                        super.onScanResult(callbackType, result);
+                        ScanRecord scanRecord = result.getScanRecord();
+                        // Check for the specific service UUID
 //                    if (scanRecord != null &&
 //                            scanRecord.getServiceUuids() != null &&
 //                            scanRecord.getServiceUuids().contains(UUID.fromString("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c"))) {
@@ -98,28 +104,30 @@ public class MainActivity extends AppCompatActivity {
 //                    }
 
 
-//                    if (scanRecord != null) {
-//                        // Get Service UUIDs
-//                        List<ParcelUuid> serviceUuids = scanRecord.getServiceUuids();
-//                        if (serviceUuids != null && !serviceUuids.isEmpty()) {
-//                            // Print all Service UUIDs
-//                            for (ParcelUuid uuid : serviceUuids) {
-//                                Log.d("BLE Service", "Scanned UUID: " + uuid.toString());
-//                                if (uuid.toString().equals("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c")) {
-//                                    Log.d("BLE Service", "Find target BLE Service!");
-//                                    BluetoothDevice device = result.getDevice();
-//                                    connectToDevice(device);
+//                        if (scanRecord != null) {
+//                            // Get Service UUIDs
+//                            List<ParcelUuid> serviceUuids = scanRecord.getServiceUuids();
+//                            if (serviceUuids != null && !serviceUuids.isEmpty()) {
+//                                // Print all Service UUIDs
+//                                for (ParcelUuid uuid : serviceUuids) {
+//                                    Log.d("BLE Service", "Scanned UUID: " + uuid.toString());
+//                                    if (uuid.toString().equals("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c")) {
+//                                        Log.d("BLE Service", "Find target BLE Service!");
+//                                        BluetoothDevice device = result.getDevice();
+//                                        connectToDevice(device);
+//                                    }
 //                                }
 //                            }
+//                        } else {
+//                            Log.d("BLE", "ScanRecord is null.");
 //                        }
-//                    } else {
-//                        Log.d("BLE", "ScanRecord is null.");
-//                    }
 
-                    BluetoothDevice device = result.getDevice();
-                    connectToDevice(device);
-                }
-            });
+                        BluetoothDevice device = result.getDevice();
+                        connectToDevice(device);
+                    }
+                });
+            }
+
         } else {
             Log.d("BLE", "Not start scanning.");
         }
@@ -149,6 +157,15 @@ public class MainActivity extends AppCompatActivity {
                     if (status == BluetoothGatt.GATT_SUCCESS) {
                         // Service discovery is successful and characteristics can be read
                         Log.d("GATT_SUCCESS", "GATT_SUCCESS");
+                        if (isScanning) {
+                            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
+                                Log.d("Stop Scanning", "Stop Scanning");
+                                bluetoothLeScanner.stopScan(new ScanCallback() {
+                                });
+                                isScanning = false;
+
+                            }
+                        }
                         BluetoothGattService service = gatt.getService(UUID.fromString("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c"));
                         runOnUiThread(() -> connectionStatus.setText("Connected to service!"));
                         if (service != null) {
