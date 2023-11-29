@@ -50,6 +50,17 @@ public class MainActivity extends AppCompatActivity {
     BluetoothDevice device;
     private TextView connectionStatus;
     private TextView rBLE;
+    private TextView gBLE;
+    private TextView bBLE;
+    private TextView luminanceBLE;
+    private TextView rollBLE;
+    private TextView pitchBLE;
+    private TextView gxBLE;
+    private TextView gyBLE;
+    private TextView gzBLE;
+    private TextView temperatureBLE;
+    private TextView soundBLE;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +81,16 @@ public class MainActivity extends AppCompatActivity {
         }
         connectionStatus = findViewById(R.id.connection_status);
         rBLE = findViewById(R.id.rBLE);
+        gBLE = findViewById(R.id.gBLE);
+        bBLE = findViewById(R.id.bBLE);
+        luminanceBLE = findViewById(R.id.luminanceBLE);
+        rollBLE = findViewById(R.id.rollBLE);
+        pitchBLE = findViewById(R.id.pitchBLE);
+        gxBLE = findViewById(R.id.gxBLE);
+        gyBLE = findViewById(R.id.gyBLE);
+        gzBLE = findViewById(R.id.gzBLE);
+        temperatureBLE = findViewById(R.id.temperatureBLE);
+        soundBLE = findViewById(R.id.soundBLE);
 
     }
 
@@ -167,9 +188,9 @@ public class MainActivity extends AppCompatActivity {
             BluetoothGatt bluetoothGatt = device.connectGatt(this, false, new BluetoothGattCallback() {
                 @Override
                 public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                    Log.d("onConnectionStateChange", "onConnectionStateChange");
+//                    Log.d("onConnectionStateChange", "onConnectionStateChange");
                     if (newState == BluetoothProfile.STATE_CONNECTED) {
-                        Log.d("1", "1");
+//                        Log.d("1", "1");
                         // Connected successfully to the device
                         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
                             Log.d("discoverServices", "discoverServices");
@@ -190,85 +211,121 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("GATT_SUCCESS", "GATT_SUCCESS");
 
 
+                        for (BluetoothGattService service : services) {
+                            Log.d("UUID", service.getUuid().toString());
+                            if (service.getUuid().toString().equals("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c")) {
+                                Log.d("UUID", "equals");
+                                runOnUiThread(() -> connectionStatus.setText("Reading characteristics!"));
 
-                             for(BluetoothGattService service : services){
-                                Log.d("UUID", service.getUuid().toString());
-                                if (service.getUuid().toString().equals("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c"))
-                                {
-                                    Log.d("UUID", "equals");
+                                BluetoothGattCharacteristic rBLE = service.getCharacteristic(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"));
+                                BluetoothGattCharacteristic gBLE = service.getCharacteristic(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"));
+                                BluetoothGattCharacteristic bBLE = service.getCharacteristic(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"));
+                                BluetoothGattCharacteristic luminanceBLE = service.getCharacteristic(UUID.fromString("1d3430e9-675a-4e8a-a2ce-2d9b3ca7edc2"));
+                                BluetoothGattCharacteristic rollBLE = service.getCharacteristic(UUID.fromString("355ade2a-3451-4455-bf04-436f3c70af2b"));
+                                BluetoothGattCharacteristic pitchBLE = service.getCharacteristic(UUID.fromString("6164171a-e232-407d-885f-e373cfc24554"));
+                                BluetoothGattCharacteristic gxBLE = service.getCharacteristic(UUID.fromString("7c4cca54-3033-490a-a2ac-cb4b8c82fc8b"));
+                                BluetoothGattCharacteristic gyBLE = service.getCharacteristic(UUID.fromString("ba581012-f1a4-4ecc-b226-5a5d0f8ab22b"));
+                                BluetoothGattCharacteristic gzBLE = service.getCharacteristic(UUID.fromString("7c2e28e8-830d-4e16-aa96-fc0f4bcbcc67"));
+                                BluetoothGattCharacteristic temperatureBLE = service.getCharacteristic(UUID.fromString("d8fb2c21-5808-4bd8-b178-a8c587de4286"));
+                                BluetoothGattCharacteristic soundBLE = service.getCharacteristic(UUID.fromString("125dd222-6a88-4f3f-bde8-4f428c54c4e0"));
 
-                                    BluetoothGattCharacteristic rBLE = service.getCharacteristic(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"));
-                                    BluetoothGattCharacteristic gBLE = service.getCharacteristic(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"));
-                                    BluetoothGattCharacteristic bBLE = service.getCharacteristic(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"));
 
-                                    Log.d("GATT CHARs", "" + rBLE + " " + gBLE + " " + bBLE);
+//                                Log.d("GATT CHARs", "" + rBLE + " " + gBLE + " " + bBLE);
+
+
+                                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
                                     if (rBLE != null) {
-                                        if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                                            // TODO: Consider calling
-                                            //    ActivityCompat#requestPermissions
-                                            // here to request the missing permissions, and then overriding
-                                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                            //                                          int[] grantResults)
-                                            // to handle the case where the user grants the permission. See the documentation
-                                            // for ActivityCompat#requestPermissions for more details.
-                                        }
+//                                        byte[] value = rBLE.getValue();
+//                                        if (value != null) {
+//                                            String rBLEValue = new String(value, StandardCharsets.UTF_8);
+//                                            Log.d("rBLE", rBLEValue);
+//                                        }
                                         gatt.readCharacteristic(rBLE);
+                                        Log.d("rBLE", rBLE.toString());
                                     }
+
                                     if (gBLE != null) {
+                                        gatt.readCharacteristic(gBLE);
                                         Log.d("gBLE", gBLE.toString());
                                     }
+
                                     if (bBLE != null) {
+                                        gatt.readCharacteristic(bBLE);
                                         Log.d("bBLE", bBLE.toString());
+                                    }
+
+                                    if (luminanceBLE != null) {
+                                        gatt.readCharacteristic(luminanceBLE);
+                                        Log.d("luminanceBLE", luminanceBLE.toString());
+                                    }
+
+//                                    Log.d("Characteristics", "" + rBLE + " " + gBLE + " " + bBLE + " " + luminanceBLE);
+//                                    gatt.readCharacteristic(rBLE);
+//                                    gatt.readCharacteristic(gBLE);
+//                                    gatt.readCharacteristic(bBLE);
+//                                    gatt.readCharacteristic(luminanceBLE);
+//                                    Log.d("Characteristics", "" + rBLE + " " + gBLE + " " + bBLE + " " + luminanceBLE);
+
+                                    if (rollBLE != null) {
+                                        gatt.readCharacteristic(rollBLE);
+                                        Log.d("rollBLE", rollBLE.toString());
+                                    }
+
+                                    if (pitchBLE != null) {
+                                        gatt.readCharacteristic(pitchBLE);
+                                        Log.d("pitchBLE", pitchBLE.toString());
+                                    }
+
+                                    if (gxBLE != null) {
+                                        gatt.readCharacteristic(gxBLE);
+                                        Log.d("gxBLE", gxBLE.toString());
+                                    }
+
+                                    if (gyBLE != null) {
+                                        gatt.readCharacteristic(gyBLE);
+                                        Log.d("gyBLE", gyBLE.toString());
+                                    }
+
+                                    if (gzBLE != null) {
+                                        gatt.readCharacteristic(gzBLE);
+                                        Log.d("gzBLE", gzBLE.toString());
+                                    }
+
+                                    if (temperatureBLE != null) {
+                                        gatt.readCharacteristic(temperatureBLE);
+                                        Log.d("temperatureBLE", temperatureBLE.toString());
+                                    }
+
+                                    if (soundBLE != null) {
+                                        gatt.readCharacteristic(soundBLE);
+                                        Log.d("soundBLE", soundBLE.toString());
                                     }
 
 
                                 }
+
                             }
-
+                        }
                     }
-
-
-
                 }
 
                 @Override
                 public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
                     Log.d("onCharacteristicRead", "onCharacteristicRead");
-                    if (status == BluetoothGatt.GATT_SUCCESS) {
-                        // Read characteristic value
-                        int intValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
-                        Log.d("SUCC", "Read value: " + intValue);
 
-                        /*final byte[] data = characteristic.getValue();
-
-                        final String rBLEValue = new String(data, StandardCharsets.UTF_8);
-
-                        // Detect medication dumping
-                        int counterAll = 7;
-                        int counterSatisfied = 0;
-                        if (Integer.parseInt(rBLEValue) >= 3 && Integer.parseInt(rBLEValue) <= 12) {
-                            counterSatisfied++;
-                        }
-//                        if (Integer.parseInt(gBLEValue) >= 1 && Integer.parseInt(gBLEValue) <= 5) {
-//                            counterSatisfied++;
-//                        }
-
-                        if ((float) counterSatisfied / (float) counterAll > 0.5) {
-                            Log.d("Warning", "Medication dumping!");
-                        }
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                rBLE.setText(rBLEValue);
-                            }
-
-                        });*/
-                    }
+                    // Read characteristic value
+                    int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                    Log.d("Characteristic Value", "Read value: " + characteristicValue);
                 }
             });
         }
     }
+
+
+
+
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

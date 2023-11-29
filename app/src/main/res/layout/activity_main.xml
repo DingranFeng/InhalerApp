@@ -16,6 +16,83 @@
         android:id="@+id/rBLE"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="red"
+        android:text="rBLE"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/gBLE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="gBLE"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/bBLE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="bBLE"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/luminanceBLE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="luminanceBLE"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/rollBLE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="rollBLE"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/pitchBLE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="pitchBLE"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/gxBLE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="gxBLE"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/gyBLE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="gyBLE"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/gzBLE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="gzBLE"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/temperatureBLE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="temperatureBLE"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/soundBLE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="soundBLE"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/dumping"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="dumping"
         android:textSize="24sp" />
 </LinearLayout>
