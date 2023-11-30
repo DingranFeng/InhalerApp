@@ -2,6 +2,7 @@ package com.example.inhalerapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.bluetooth.BluetoothGattDescriptor;
 import android.os.Build;
 import android.os.Bundle;
 import android.bluetooth.BluetoothAdapter;
@@ -240,64 +241,64 @@ public class MainActivity extends AppCompatActivity {
 //                                            String rBLEValue = new String(value, StandardCharsets.UTF_8);
 //                                            Log.d("rBLE", rBLEValue);
 //                                        }
-                                        gatt.readCharacteristic(rBLE);
+                                        enableNotifications(gatt, rBLE);
                                         Log.d("rBLE", rBLE.toString());
                                     }
 
                                     if (gBLE != null) {
-                                        gatt.readCharacteristic(gBLE);
+                                        enableNotifications(gatt, gBLE);
                                         Log.d("gBLE", gBLE.toString());
                                     }
 
                                     if (bBLE != null) {
-                                        gatt.readCharacteristic(bBLE);
+                                        enableNotifications(gatt, bBLE);
                                         Log.d("bBLE", bBLE.toString());
                                     }
 
                                     if (luminanceBLE != null) {
-                                        gatt.readCharacteristic(luminanceBLE);
+                                        enableNotifications(gatt, luminanceBLE);
                                         Log.d("luminanceBLE", luminanceBLE.toString());
                                     }
 
 //                                    Log.d("Characteristics", "" + rBLE + " " + gBLE + " " + bBLE + " " + luminanceBLE);
-//                                    gatt.readCharacteristic(rBLE);
-//                                    gatt.readCharacteristic(gBLE);
-//                                    gatt.readCharacteristic(bBLE);
-//                                    gatt.readCharacteristic(luminanceBLE);
+//                                    enableNotifications(gatt, rBLE);
+//                                    enableNotifications(gatt, gBLE);
+//                                    enableNotifications(gatt, bBLE);
+//                                    enableNotifications(gatt, luminanceBLE);
 //                                    Log.d("Characteristics", "" + rBLE + " " + gBLE + " " + bBLE + " " + luminanceBLE);
 
                                     if (rollBLE != null) {
-                                        gatt.readCharacteristic(rollBLE);
+                                        enableNotifications(gatt, rollBLE);
                                         Log.d("rollBLE", rollBLE.toString());
                                     }
 
                                     if (pitchBLE != null) {
-                                        gatt.readCharacteristic(pitchBLE);
+                                        enableNotifications(gatt, pitchBLE);
                                         Log.d("pitchBLE", pitchBLE.toString());
                                     }
 
                                     if (gxBLE != null) {
-                                        gatt.readCharacteristic(gxBLE);
+                                        enableNotifications(gatt, gxBLE);
                                         Log.d("gxBLE", gxBLE.toString());
                                     }
 
                                     if (gyBLE != null) {
-                                        gatt.readCharacteristic(gyBLE);
+                                        enableNotifications(gatt, gyBLE);
                                         Log.d("gyBLE", gyBLE.toString());
                                     }
 
                                     if (gzBLE != null) {
-                                        gatt.readCharacteristic(gzBLE);
+                                        enableNotifications(gatt, gzBLE);
                                         Log.d("gzBLE", gzBLE.toString());
                                     }
 
                                     if (temperatureBLE != null) {
-                                        gatt.readCharacteristic(temperatureBLE);
+                                        enableNotifications(gatt, temperatureBLE);
                                         Log.d("temperatureBLE", temperatureBLE.toString());
                                     }
 
                                     if (soundBLE != null) {
-                                        gatt.readCharacteristic(soundBLE);
+                                        enableNotifications(gatt, soundBLE);
                                         Log.d("soundBLE", soundBLE.toString());
                                     }
 
@@ -307,6 +308,37 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     }
+                }
+
+                private boolean enableNotifications(BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
+                    final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c"));
+                    if (descriptor != null) {
+                        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+                        }
+                        gatt.setCharacteristicNotification(characteristic, true);
+                        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                        return gatt.writeDescriptor(descriptor);
+                    }
+                    return false;
+                }
+
+                @Override
+                public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
+                {
+                    if (characteristic.getUuid().equals(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"))) {
+                        int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                        Log.d("Characteristic Changed", "rBLE value: " + characteristicValue);
+                    } else if (characteristic.getUuid().equals(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"))) {
+                        int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                        Log.d("Characteristic Changed", "gBLE value: " + characteristicValue);
+                    } else if (characteristic.getUuid().equals(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"))) {
+                        int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                        Log.d("Characteristic Changed", "bBLE value: " + characteristicValue);
+                    } else if (characteristic.getUuid().equals(UUID.fromString("1d3430e9-675a-4e8a-a2ce-2d9b3ca7edc2"))) {
+                        int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                        Log.d("Characteristic Changed", "luminanceBLE value: " + characteristicValue);
+                    }
+
                 }
 
                 @Override
