@@ -312,10 +312,13 @@ public class MainActivity extends AppCompatActivity {
 
                 private boolean enableNotifications(BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
                     Log.d("enableNotifications", "enableNotifications");
-                    final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c"));
+                    final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
                     if (descriptor != null) {
+                        Log.d("enableNotifications 2 ", "enableNotifications 2");
+
                         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
                         }
+                        Log.d("enableNotifications 3", "enableNotifications 3");
                         gatt.setCharacteristicNotification(characteristic, true);
                         descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                         return gatt.writeDescriptor(descriptor);
