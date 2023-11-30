@@ -325,6 +325,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
                 {
+                    Log.d("onCharacteristicChanged", "onCharacteristicChanged");
+
                     if (characteristic.getUuid().equals(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "rBLE value: " + characteristicValue);
