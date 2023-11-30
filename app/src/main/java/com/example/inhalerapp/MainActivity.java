@@ -62,7 +62,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView temperatureBLE;
     private TextView soundBLE;
 
-
+    BluetoothGattCharacteristic rBLEChar;
+    BluetoothGattCharacteristic gBLEChar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("onCreate", "onCreate.");
@@ -218,8 +219,11 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d("UUID", "equals");
                                 runOnUiThread(() -> connectionStatus.setText("Reading characteristics!"));
 
-                                BluetoothGattCharacteristic rBLE = service.getCharacteristic(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"));
-                                BluetoothGattCharacteristic gBLE = service.getCharacteristic(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"));
+
+
+
+                                rBLEChar = service.getCharacteristic(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"));
+                                gBLEChar = service.getCharacteristic(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"));
                                 BluetoothGattCharacteristic bBLE = service.getCharacteristic(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"));
                                 BluetoothGattCharacteristic luminanceBLE = service.getCharacteristic(UUID.fromString("1d3430e9-675a-4e8a-a2ce-2d9b3ca7edc2"));
                                 BluetoothGattCharacteristic rollBLE = service.getCharacteristic(UUID.fromString("355ade2a-3451-4455-bf04-436f3c70af2b"));
@@ -233,7 +237,8 @@ public class MainActivity extends AppCompatActivity {
 
 //                                Log.d("GATT CHARs", "" + rBLE + " " + gBLE + " " + bBLE);
 
-
+                                enableNotifications(gatt, rBLEChar);
+/*
                                 if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
                                     if (rBLE != null) {
 //                                        byte[] value = rBLE.getValue();
@@ -300,15 +305,34 @@ public class MainActivity extends AppCompatActivity {
                                     if (soundBLE != null) {
                                         enableNotifications(gatt, soundBLE);
                                         Log.d("soundBLE", soundBLE.toString());
-                                    }
+                                    }*/
 
 
-                                }
+                                // }
 
                             }
                         }
                     }
                 }
+
+                private void enableNotifications(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                    }
+                    gatt.setCharacteristicNotification(characteristic, true);
+
+                    // Enable the notification descriptor
+                    BluetoothGattDescriptor descriptor = characteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
+                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                    gatt.writeDescriptor(descriptor);
+                }
+                /*
 
                 private boolean enableNotifications(BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
                     Log.d("enableNotifications", "enableNotifications");
@@ -324,12 +348,12 @@ public class MainActivity extends AppCompatActivity {
                         return gatt.writeDescriptor(descriptor);
                     }
                     return false;
-                }
+                }*/
 
                 @Override
                 public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
                 {
-                    Log.d("onCharacteristicChanged", "onCharacteristicChanged");
+                    Log.d("onCharacteristicChanged", "onCharacteristicChanged " + characteristic.getUuid());
 
                     if (characteristic.getUuid().equals(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
@@ -349,6 +373,15 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("Characteristic Changed", "luminanceBLE value: " + characteristicValue);
                     }
 
+                }
+
+                @Override
+                public void onDescriptorWrite (BluetoothGatt gatt,
+                                               BluetoothGattDescriptor descriptor,
+                                               int status)
+                {
+                    Log.d("OnDescriptorWrite", "OnDescriptorWrite");
+                    enableNotifications(gatt, gBLEChar);
                 }
 
                 @Override
