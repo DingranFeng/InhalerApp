@@ -240,64 +240,64 @@ public class MainActivity extends AppCompatActivity {
 //                                            String rBLEValue = new String(value, StandardCharsets.UTF_8);
 //                                            Log.d("rBLE", rBLEValue);
 //                                        }
-                                        gatt.readCharacteristic(rBLE);
+                                        enableNotifications(gatt, rBLE);
                                         Log.d("rBLE", rBLE.toString());
                                     }
 
                                     if (gBLE != null) {
-                                        gatt.readCharacteristic(gBLE);
+                                        enableNotifications(gatt, gBLE);
                                         Log.d("gBLE", gBLE.toString());
                                     }
 
                                     if (bBLE != null) {
-                                        gatt.readCharacteristic(bBLE);
+                                        enableNotifications(gatt, bBLE);
                                         Log.d("bBLE", bBLE.toString());
                                     }
 
                                     if (luminanceBLE != null) {
-                                        gatt.readCharacteristic(luminanceBLE);
+                                        enableNotifications(gatt, luminanceBLE);
                                         Log.d("luminanceBLE", luminanceBLE.toString());
                                     }
 
 //                                    Log.d("Characteristics", "" + rBLE + " " + gBLE + " " + bBLE + " " + luminanceBLE);
-//                                    gatt.readCharacteristic(rBLE);
-//                                    gatt.readCharacteristic(gBLE);
-//                                    gatt.readCharacteristic(bBLE);
-//                                    gatt.readCharacteristic(luminanceBLE);
+//                                    enableNotifications(gatt, rBLE);
+//                                    enableNotifications(gatt, gBLE);
+//                                    enableNotifications(gatt, bBLE);
+//                                    enableNotifications(gatt, luminanceBLE);
 //                                    Log.d("Characteristics", "" + rBLE + " " + gBLE + " " + bBLE + " " + luminanceBLE);
 
                                     if (rollBLE != null) {
-                                        gatt.readCharacteristic(rollBLE);
+                                        enableNotifications(gatt, rollBLE);
                                         Log.d("rollBLE", rollBLE.toString());
                                     }
 
                                     if (pitchBLE != null) {
-                                        gatt.readCharacteristic(pitchBLE);
+                                        enableNotifications(gatt, pitchBLE);
                                         Log.d("pitchBLE", pitchBLE.toString());
                                     }
 
                                     if (gxBLE != null) {
-                                        gatt.readCharacteristic(gxBLE);
+                                        enableNotifications(gatt, gxBLE);
                                         Log.d("gxBLE", gxBLE.toString());
                                     }
 
                                     if (gyBLE != null) {
-                                        gatt.readCharacteristic(gyBLE);
+                                        enableNotifications(gatt, gyBLE);
                                         Log.d("gyBLE", gyBLE.toString());
                                     }
 
                                     if (gzBLE != null) {
-                                        gatt.readCharacteristic(gzBLE);
+                                        enableNotifications(gatt, gzBLE);
                                         Log.d("gzBLE", gzBLE.toString());
                                     }
 
                                     if (temperatureBLE != null) {
-                                        gatt.readCharacteristic(temperatureBLE);
+                                        enableNotifications(gatt, temperatureBLE);
                                         Log.d("temperatureBLE", temperatureBLE.toString());
                                     }
 
                                     if (soundBLE != null) {
-                                        gatt.readCharacteristic(soundBLE);
+                                        enableNotifications(gatt, soundBLE);
                                         Log.d("soundBLE", soundBLE.toString());
                                     }
 
@@ -306,6 +306,18 @@ public class MainActivity extends AppCompatActivity {
 
                             }
                         }
+                    }
+                }
+
+                public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) 
+                {
+                    if(gatt.getUuid() == rBLE.getUuid())
+                    {
+                        int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                    }
+                    else if(gatt.getUuid() == gBle.getUuid())
+                    {
+
                     }
                 }
 
