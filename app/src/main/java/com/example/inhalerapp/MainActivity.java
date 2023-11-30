@@ -309,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+                @Override
                 public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) 
                 {
                     if(gatt.getUuid() == rBLE.getUuid())
