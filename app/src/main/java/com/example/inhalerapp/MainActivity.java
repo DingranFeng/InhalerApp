@@ -331,16 +331,20 @@ public class MainActivity extends AppCompatActivity {
                 {
                     Log.d("onCharacteristicChanged", "onCharacteristicChanged");
 
+                    if (characteristic.getUuid().equals(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"))) {
+                        int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                        Log.d("Characteristic Changed", "gBLE value: " + characteristicValue);
+                    }
                     if (characteristic.getUuid().equals(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "rBLE value: " + characteristicValue);
-                    } else if (characteristic.getUuid().equals(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"))) {
-                        int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
-                        Log.d("Characteristic Changed", "gBLE value: " + characteristicValue);
-                    } else if (characteristic.getUuid().equals(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"))) {
+                    }
+
+                    if (characteristic.getUuid().equals(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "bBLE value: " + characteristicValue);
-                    } else if (characteristic.getUuid().equals(UUID.fromString("1d3430e9-675a-4e8a-a2ce-2d9b3ca7edc2"))) {
+                    }
+                    if (characteristic.getUuid().equals(UUID.fromString("1d3430e9-675a-4e8a-a2ce-2d9b3ca7edc2"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "luminanceBLE value: " + characteristicValue);
                     }
