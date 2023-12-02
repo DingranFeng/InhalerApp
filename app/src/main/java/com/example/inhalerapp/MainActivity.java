@@ -26,6 +26,7 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,6 +65,16 @@ public class MainActivity extends AppCompatActivity {
 
     BluetoothGattCharacteristic rBLEChar;
     BluetoothGattCharacteristic gBLEChar;
+    BluetoothGattCharacteristic bBLEChar;
+    BluetoothGattCharacteristic luminanceBLEChar;
+    BluetoothGattCharacteristic rollBLEChar;
+    BluetoothGattCharacteristic pitchBLEChar;
+    BluetoothGattCharacteristic gxBLEChar;
+    BluetoothGattCharacteristic gyBLEChar;
+    BluetoothGattCharacteristic gzBLEChar;
+    BluetoothGattCharacteristic temperatureBLEChar;
+    BluetoothGattCharacteristic soundBLEChar;
+    private List<BluetoothGattCharacteristic> characteristicsToEnable;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("onCreate", "onCreate.");
@@ -211,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                         List<BluetoothGattService> services = gatt.getServices();
                         // Service discovery is successful and characteristics can be read
                         Log.d("GATT_SUCCESS", "GATT_SUCCESS");
-
+                        characteristicsToEnable = new ArrayList<>();
 
                         for (BluetoothGattService service : services) {
                             Log.d("UUID", service.getUuid().toString());
@@ -224,20 +235,26 @@ public class MainActivity extends AppCompatActivity {
 
                                 rBLEChar = service.getCharacteristic(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"));
                                 gBLEChar = service.getCharacteristic(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"));
-                                BluetoothGattCharacteristic bBLE = service.getCharacteristic(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"));
-                                BluetoothGattCharacteristic luminanceBLE = service.getCharacteristic(UUID.fromString("1d3430e9-675a-4e8a-a2ce-2d9b3ca7edc2"));
-                                BluetoothGattCharacteristic rollBLE = service.getCharacteristic(UUID.fromString("355ade2a-3451-4455-bf04-436f3c70af2b"));
-                                BluetoothGattCharacteristic pitchBLE = service.getCharacteristic(UUID.fromString("6164171a-e232-407d-885f-e373cfc24554"));
-                                BluetoothGattCharacteristic gxBLE = service.getCharacteristic(UUID.fromString("7c4cca54-3033-490a-a2ac-cb4b8c82fc8b"));
-                                BluetoothGattCharacteristic gyBLE = service.getCharacteristic(UUID.fromString("ba581012-f1a4-4ecc-b226-5a5d0f8ab22b"));
-                                BluetoothGattCharacteristic gzBLE = service.getCharacteristic(UUID.fromString("7c2e28e8-830d-4e16-aa96-fc0f4bcbcc67"));
-                                BluetoothGattCharacteristic temperatureBLE = service.getCharacteristic(UUID.fromString("d8fb2c21-5808-4bd8-b178-a8c587de4286"));
-                                BluetoothGattCharacteristic soundBLE = service.getCharacteristic(UUID.fromString("125dd222-6a88-4f3f-bde8-4f428c54c4e0"));
+                                bBLEChar = service.getCharacteristic(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"));
+                                luminanceBLEChar = service.getCharacteristic(UUID.fromString("1d3430e9-675a-4e8a-a2ce-2d9b3ca7edc2"));
+                                rollBLEChar = service.getCharacteristic(UUID.fromString("355ade2a-3451-4455-bf04-436f3c70af2b"));
+                                pitchBLEChar = service.getCharacteristic(UUID.fromString("6164171a-e232-407d-885f-e373cfc24554"));
+                                gxBLEChar = service.getCharacteristic(UUID.fromString("7c4cca54-3033-490a-a2ac-cb4b8c82fc8b"));
+                                gyBLEChar = service.getCharacteristic(UUID.fromString("ba581012-f1a4-4ecc-b226-5a5d0f8ab22b"));
+                                gzBLEChar = service.getCharacteristic(UUID.fromString("7c2e28e8-830d-4e16-aa96-fc0f4bcbcc67"));
+                                temperatureBLEChar = service.getCharacteristic(UUID.fromString("d8fb2c21-5808-4bd8-b178-a8c587de4286"));
+                                soundBLEChar = service.getCharacteristic(UUID.fromString("125dd222-6a88-4f3f-bde8-4f428c54c4e0"));
 
 
 //                                Log.d("GATT CHARs", "" + rBLE + " " + gBLE + " " + bBLE);
 
-                                enableNotifications(gatt, rBLEChar);
+                                characteristicsToEnable.add(rBLEChar);
+                                characteristicsToEnable.add(gBLEChar);
+                                characteristicsToEnable.add(bBLEChar);
+                                characteristicsToEnable.add(luminanceBLEChar);
+
+//                                enableNotifications(gatt, rBLEChar);
+                                enableNextCharacteristicNotification(gatt);
 /*
                                 if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED) {
                                     if (rBLE != null) {
@@ -315,6 +332,14 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+
+                private void enableNextCharacteristicNotification(BluetoothGatt gatt) {
+                    if (!characteristicsToEnable.isEmpty()) {
+                        BluetoothGattCharacteristic characteristic = characteristicsToEnable.remove(0);
+                        enableNotifications(gatt, characteristic);
+                    }
+                }
+
                 private void enableNotifications(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
                     if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                         // TODO: Consider calling
@@ -355,20 +380,22 @@ public class MainActivity extends AppCompatActivity {
                 {
                     Log.d("onCharacteristicChanged", "onCharacteristicChanged " + characteristic.getUuid());
 
-                    if (characteristic.getUuid().equals(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"))) {
-                        int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
-                        Log.d("Characteristic Changed", "gBLE value: " + characteristicValue);
-                    }
+
                     if (characteristic.getUuid().equals(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "rBLE value: " + characteristicValue);
                     }
 
-                    if (characteristic.getUuid().equals(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"))) {
+                    else if (characteristic.getUuid().equals(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"))) {
+                        int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                        Log.d("Characteristic Changed", "gBLE value: " + characteristicValue);
+                    }
+
+                    else if (characteristic.getUuid().equals(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "bBLE value: " + characteristicValue);
                     }
-                    if (characteristic.getUuid().equals(UUID.fromString("1d3430e9-675a-4e8a-a2ce-2d9b3ca7edc2"))) {
+                    else if (characteristic.getUuid().equals(UUID.fromString("1d3430e9-675a-4e8a-a2ce-2d9b3ca7edc2"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "luminanceBLE value: " + characteristicValue);
                     }
@@ -376,22 +403,23 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onDescriptorWrite (BluetoothGatt gatt,
-                                               BluetoothGattDescriptor descriptor,
-                                               int status)
-                {
+                public void onDescriptorWrite (BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
                     Log.d("OnDescriptorWrite", "OnDescriptorWrite");
-                    enableNotifications(gatt, gBLEChar);
+//                    enableNotifications(gatt, gBLEChar);
+                    if (status == BluetoothGatt.GATT_SUCCESS) {
+                        enableNextCharacteristicNotification(gatt);
+                    }
                 }
 
-                @Override
-                public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-                    Log.d("onCharacteristicRead", "onCharacteristicRead");
+//                @Override
+//                public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+//                    Log.d("onCharacteristicRead", "onCharacteristicRead");
+//
+//                    // Read characteristic value
+//                    int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+//                    Log.d("Characteristic Value", "Read value: " + characteristicValue);
+//                }
 
-                    // Read characteristic value
-                    int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
-                    Log.d("Characteristic Value", "Read value: " + characteristicValue);
-                }
             });
         }
     }
