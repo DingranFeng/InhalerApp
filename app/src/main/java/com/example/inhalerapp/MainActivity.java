@@ -25,6 +25,8 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -252,6 +254,13 @@ public class MainActivity extends AppCompatActivity {
                                 characteristicsToEnable.add(gBLEChar);
                                 characteristicsToEnable.add(bBLEChar);
                                 characteristicsToEnable.add(luminanceBLEChar);
+                                characteristicsToEnable.add(rollBLEChar);
+                                characteristicsToEnable.add(pitchBLEChar);
+                                characteristicsToEnable.add(gxBLEChar);
+                                characteristicsToEnable.add(gyBLEChar);
+                                characteristicsToEnable.add(gzBLEChar);
+                                characteristicsToEnable.add(temperatureBLEChar);
+                                characteristicsToEnable.add(soundBLEChar);
 
 //                                enableNotifications(gatt, rBLEChar);
                                 enableNextCharacteristicNotification(gatt);
@@ -378,26 +387,92 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
                 {
-                    Log.d("onCharacteristicChanged", "onCharacteristicChanged " + characteristic.getUuid());
+//                    Log.d("onCharacteristicChanged", "onCharacteristicChanged " + characteristic.getUuid());
 
 
                     if (characteristic.getUuid().equals(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "rBLE value: " + characteristicValue);
+//                        runOnUiThread(() -> rBLE.setText(characteristicValue));
                     }
 
                     else if (characteristic.getUuid().equals(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "gBLE value: " + characteristicValue);
+//                        runOnUiThread(() -> gBLE.setText(characteristicValue));
                     }
 
                     else if (characteristic.getUuid().equals(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "bBLE value: " + characteristicValue);
+//                        runOnUiThread(() -> bBLE.setText(characteristicValue));
                     }
+
                     else if (characteristic.getUuid().equals(UUID.fromString("1d3430e9-675a-4e8a-a2ce-2d9b3ca7edc2"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "luminanceBLE value: " + characteristicValue);
+//                        runOnUiThread(() -> luminanceBLE.setText(characteristicValue));
+                    }
+
+                    else if (characteristic.getUuid().equals(UUID.fromString("355ade2a-3451-4455-bf04-436f3c70af2b"))) {
+                        byte[] byteValue = characteristic.getValue();
+                        if (byteValue != null && byteValue.length >= 8) {
+                            double characteristicValue = ByteBuffer.wrap(byteValue).order(ByteOrder.LITTLE_ENDIAN).getDouble();
+                            Log.d("Characteristic Changed", "roll value: " + characteristicValue);
+                        }
+                    }
+
+                    else if (characteristic.getUuid().equals(UUID.fromString("6164171a-e232-407d-885f-e373cfc24554"))) {
+                        byte[] byteValue = characteristic.getValue();
+                        if (byteValue != null && byteValue.length >= 8) {
+                            double characteristicValue = ByteBuffer.wrap(byteValue).order(ByteOrder.LITTLE_ENDIAN).getDouble();
+                            Log.d("Characteristic Changed", "pitch value: " + characteristicValue);
+                        }
+                    }
+
+                    else if (characteristic.getUuid().equals(UUID.fromString("7c4cca54-3033-490a-a2ac-cb4b8c82fc8b"))) {
+                        byte[] byteValue = characteristic.getValue();
+                        if (byteValue != null && byteValue.length >= 4) {
+                            float characteristicValue = ByteBuffer.wrap(byteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                            Log.d("Characteristic Changed", "gx value: " + characteristicValue);
+
+                        }
+                    }
+
+                    else if (characteristic.getUuid().equals(UUID.fromString("ba581012-f1a4-4ecc-b226-5a5d0f8ab22b"))) {
+                        byte[] byteValue = characteristic.getValue();
+                        if (byteValue != null && byteValue.length >= 4) {
+                            float characteristicValue = ByteBuffer.wrap(byteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                            Log.d("Characteristic Changed", "gy value: " + characteristicValue);
+
+                        }
+                    }
+
+                    else if (characteristic.getUuid().equals(UUID.fromString("7c2e28e8-830d-4e16-aa96-fc0f4bcbcc67"))) {
+                        byte[] byteValue = characteristic.getValue();
+                        if (byteValue != null && byteValue.length >= 4) {
+                            float characteristicValue = ByteBuffer.wrap(byteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                            Log.d("Characteristic Changed", "gz value: " + characteristicValue);
+
+                        }
+                    }
+
+                    else if (characteristic.getUuid().equals(UUID.fromString("d8fb2c21-5808-4bd8-b178-a8c587de4286"))) {
+                        byte[] byteValue = characteristic.getValue();
+                        if (byteValue != null && byteValue.length >= 4) {
+                            float characteristicValue = ByteBuffer.wrap(byteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                            Log.d("Characteristic Changed", "temperature value: " + characteristicValue);
+
+                        }
+                    }
+
+                    else if (characteristic.getUuid().equals(UUID.fromString("125dd222-6a88-4f3f-bde8-4f428c54c4e0"))) {
+                        byte[] byteValue = characteristic.getValue();
+                        if (byteValue != null && byteValue.length >= 4) {
+                            float characteristicValue = ByteBuffer.wrap(byteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                            Log.d("Characteristic Changed", "sound value: " + characteristicValue);
+
+                        }
                     }
 
                 }
