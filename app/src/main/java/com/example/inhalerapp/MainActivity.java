@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView gzBLE;
     private TextView temperatureBLE;
     private TextView soundBLE;
+    private TextView usageStatus;
     private TextView dumpingStatus;
 
     BluetoothGattCharacteristic rBLEChar;
@@ -107,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
         gzBLE = findViewById(R.id.gzBLE);
         temperatureBLE = findViewById(R.id.temperatureBLE);
         soundBLE = findViewById(R.id.soundBLE);
+        usageStatus = findViewById(R.id.usage);
         dumpingStatus = findViewById(R.id.dumping);
 
     }
@@ -250,19 +252,18 @@ public class MainActivity extends AppCompatActivity {
                                 soundBLEChar = service.getCharacteristic(UUID.fromString("125dd222-6a88-4f3f-bde8-4f428c54c4e0"));
 
 
-//                                Log.d("GATT CHARs", "" + rBLE + " " + gBLE + " " + bBLE);
 
                                 characteristicsToEnable.add(rBLEChar);
                                 characteristicsToEnable.add(gBLEChar);
                                 characteristicsToEnable.add(bBLEChar);
-//                                characteristicsToEnable.add(luminanceBLEChar);
+                                characteristicsToEnable.add(luminanceBLEChar);
                                 characteristicsToEnable.add(rollBLEChar);
                                 characteristicsToEnable.add(pitchBLEChar);
                                 characteristicsToEnable.add(gxBLEChar);
                                 characteristicsToEnable.add(gyBLEChar);
                                 characteristicsToEnable.add(gzBLEChar);
-//                                characteristicsToEnable.add(temperatureBLEChar);
-//                                characteristicsToEnable.add(soundBLEChar);
+                                characteristicsToEnable.add(temperatureBLEChar);
+                                characteristicsToEnable.add(soundBLEChar);
 
 //                                enableNotifications(gatt, rBLEChar);
                                 enableNextCharacteristicNotification(gatt);
@@ -390,39 +391,39 @@ public class MainActivity extends AppCompatActivity {
                 public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
                 {
 //                    Log.d("onCharacteristicChanged", "onCharacteristicChanged " + characteristic.getUuid());
-
+//                    Log.d("RRR", String.valueOf(rBLEChar.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0)));
 
                     if (characteristic.getUuid().equals(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "rBLE value: " + characteristicValue);
                         runOnUiThread(() -> rBLE.setText("red " + String.valueOf(characteristicValue)));
-                        if (characteristicValue > 3 && characteristicValue < 12) {
-                            runOnUiThread(() -> dumpingStatus.setText("No Dumping"));
-                        } else {
-                            runOnUiThread(() -> dumpingStatus.setText("Dumping!"));
-                        }
+//                        if (characteristicValue > 3 && characteristicValue < 12) {
+//                            runOnUiThread(() -> dumpingStatus.setText("No Dumping"));
+//                        } else {
+//                            runOnUiThread(() -> dumpingStatus.setText("Dumping!"));
+//                        }
                     }
 
                     else if (characteristic.getUuid().equals(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "gBLE value: " + characteristicValue);
                         runOnUiThread(() -> gBLE.setText("green " + String.valueOf(characteristicValue)));
-                        if (characteristicValue > 1 && characteristicValue < 5) {
-                            runOnUiThread(() -> dumpingStatus.setText("No Dumping"));
-                        } else {
-                            runOnUiThread(() -> dumpingStatus.setText("Dumping!"));
-                        }
+//                        if (characteristicValue > 1 && characteristicValue < 5) {
+//                            runOnUiThread(() -> dumpingStatus.setText("No Dumping"));
+//                        } else {
+//                            runOnUiThread(() -> dumpingStatus.setText("Dumping!"));
+//                        }
                     }
 
                     else if (characteristic.getUuid().equals(UUID.fromString("a5807b3f-8de8-4916-aa32-b7d4f82cd7d6"))) {
                         int characteristicValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                         Log.d("Characteristic Changed", "bBLE value: " + characteristicValue);
                         runOnUiThread(() -> bBLE.setText("blue " + String.valueOf(characteristicValue)));
-                        if (characteristicValue > 1 && characteristicValue < 5) {
-                            runOnUiThread(() -> dumpingStatus.setText("No Dumping"));
-                        } else {
-                            runOnUiThread(() -> dumpingStatus.setText("Dumping!"));
-                        }
+//                        if (characteristicValue > 1 && characteristicValue < 5) {
+//                            runOnUiThread(() -> dumpingStatus.setText("No Dumping"));
+//                        } else {
+//                            runOnUiThread(() -> dumpingStatus.setText("Dumping!"));
+//                        }
                     }
 
 //                    else if (characteristic.getUuid().equals(UUID.fromString("1d3430e9-675a-4e8a-a2ce-2d9b3ca7edc2"))) {
@@ -481,7 +482,7 @@ public class MainActivity extends AppCompatActivity {
 //                        if (byteValue != null && byteValue.length >= 4) {
 //                            float characteristicValue = ByteBuffer.wrap(byteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
 //                            Log.d("Characteristic Changed", "temperature value: " + characteristicValue);
-//
+//                            runOnUiThread(() -> temperatureBLE.setText("temperature " + String.valueOf(characteristicValue)));
 //                        }
 //                    }
 //
@@ -490,11 +491,43 @@ public class MainActivity extends AppCompatActivity {
 //                        if (byteValue != null && byteValue.length >= 4) {
 //                            float characteristicValue = ByteBuffer.wrap(byteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
 //                            Log.d("Characteristic Changed", "sound value: " + characteristicValue);
-//
+//                            runOnUiThread(() -> soundBLE.setText("sound " + String.valueOf(characteristicValue)));
 //                        }
 //                    }
 
+                    int red = rBLEChar.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                    int green = gBLEChar.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                    int blue = bBLEChar.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                    byte[] rollByteValue = rollBLEChar.getValue();
+                    double roll = ByteBuffer.wrap(rollByteValue).order(ByteOrder.LITTLE_ENDIAN).getDouble();
+                    byte[] pitchByteValue = pitchBLEChar.getValue();
+                    double pitch = ByteBuffer.wrap(pitchByteValue).order(ByteOrder.LITTLE_ENDIAN).getDouble();
+                    byte[] gxByteValue = gxBLEChar.getValue();
+                    float gx = ByteBuffer.wrap(gxByteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                    byte[] gyByteValue = gyBLEChar.getValue();
+                    float gy = ByteBuffer.wrap(gyByteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                    byte[] gzByteValue = gzBLEChar.getValue();
+                    float gz = ByteBuffer.wrap(gzByteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                    float angularVelocitySquared = gx * gx + gy * gy + gz * gz;
+//                    byte[] temperatureByteValue = temperatureBLEChar.getValue();
+//                    float temperature = ByteBuffer.wrap(temperatureByteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
 
+                    // Decision tree for medication usage detection
+                    if (red > 2 && red < 12 && green < 5 && blue < 5) {
+                        if (angularVelocitySquared < 12.0) {
+                            if (roll > -10.0 && roll < 10.0 && pitch > -10.0 && pitch < 10.0) {
+                                runOnUiThread(() -> usageStatus.setText("Using..."));
+                            } else {
+                                runOnUiThread(() -> usageStatus.setText("Not in a right angle!"));
+                            }
+                        } else {
+                            runOnUiThread(() -> usageStatus.setText("Not static!"));
+                        }
+                    } else {
+                        runOnUiThread(() -> usageStatus.setText("Not holding!"));
+                    }
+
+                    // Decision tree for medication dumping detection
 
                 }
 
