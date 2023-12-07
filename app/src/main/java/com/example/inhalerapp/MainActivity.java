@@ -79,6 +79,9 @@ public class MainActivity extends AppCompatActivity {
     BluetoothGattCharacteristic temperatureBLEChar;
     BluetoothGattCharacteristic soundBLEChar;
     private List<BluetoothGattCharacteristic> characteristicsToEnable;
+    private long usageStartTime = 0;
+    private boolean isUsing = false;
+    long duration = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("onCreate", "onCreate.");
@@ -498,37 +501,77 @@ public class MainActivity extends AppCompatActivity {
                     int red = rBLEChar.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                     int green = gBLEChar.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                     int blue = bBLEChar.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+
                     byte[] rollByteValue = rollBLEChar.getValue();
-                    double roll = ByteBuffer.wrap(rollByteValue).order(ByteOrder.LITTLE_ENDIAN).getDouble();
+                    double roll = 0.0;
+                    if (rollByteValue != null && rollByteValue.length >= 8) {
+                        roll = ByteBuffer.wrap(rollByteValue).order(ByteOrder.LITTLE_ENDIAN).getDouble();
+                    }
                     byte[] pitchByteValue = pitchBLEChar.getValue();
-                    double pitch = ByteBuffer.wrap(pitchByteValue).order(ByteOrder.LITTLE_ENDIAN).getDouble();
+                    double pitch = 0.0;
+                    if (pitchByteValue != null && pitchByteValue.length >= 8) {
+                        pitch = ByteBuffer.wrap(pitchByteValue).order(ByteOrder.LITTLE_ENDIAN).getDouble();
+                    }
+
                     byte[] gxByteValue = gxBLEChar.getValue();
-                    float gx = ByteBuffer.wrap(gxByteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                    float gx = 0.0F;
+                    if (gxByteValue != null && gxByteValue.length >= 4) {
+                        gx = ByteBuffer.wrap(gxByteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                    }
                     byte[] gyByteValue = gyBLEChar.getValue();
-                    float gy = ByteBuffer.wrap(gyByteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                    float gy = 0.0F;
+                    if (gyByteValue != null && gyByteValue.length >= 4) {
+                        gy = ByteBuffer.wrap(gyByteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                    }
                     byte[] gzByteValue = gzBLEChar.getValue();
-                    float gz = ByteBuffer.wrap(gzByteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                    float gz = 0.0F;
+                    if (gzByteValue != null && gzByteValue.length >= 4) {
+                        gz = ByteBuffer.wrap(gzByteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+                    }
                     float angularVelocitySquared = gx * gx + gy * gy + gz * gz;
 //                    byte[] temperatureByteValue = temperatureBLEChar.getValue();
 //                    float temperature = ByteBuffer.wrap(temperatureByteValue).order(ByteOrder.LITTLE_ENDIAN).getFloat();
 
                     // Decision tree for medication usage detection
-                    if (red > 2 && red < 12 && green < 5 && blue < 5) {
+                    if (red < 12 && green < 5 && blue < 5) {
                         if (angularVelocitySquared < 12.0) {
                             if (roll > -10.0 && roll < 10.0 && pitch > -10.0 && pitch < 10.0) {
                                 runOnUiThread(() -> usageStatus.setText("Using..."));
+                                if (!isUsing) {
+                                    isUsing = true;
+                                    usageStartTime = System.currentTimeMillis();
+                                }
                             } else {
                                 runOnUiThread(() -> usageStatus.setText("Not in a right angle!"));
+                                if (isUsing) {
+                                    isUsing = false;
+                                    duration = System.currentTimeMillis() - usageStartTime;
+                                    Log.d("Usage Duration", "Medication used for " + duration + " ms");
+                                }
                             }
                         } else {
                             runOnUiThread(() -> usageStatus.setText("Not static!"));
+                            if (isUsing) {
+                                isUsing = false;
+                                duration = System.currentTimeMillis() - usageStartTime;
+                                Log.d("Usage Duration", "Medication used for " + duration + " ms");
+                            }
                         }
                     } else {
                         runOnUiThread(() -> usageStatus.setText("Not holding!"));
+                        if (isUsing) {
+                            isUsing = false;
+                            duration = System.currentTimeMillis() - usageStartTime;
+                            Log.d("Usage Duration", "Medication used for " + duration + " ms");
+                        }
                     }
 
                     // Decision tree for medication dumping detection
-
+                    if (duration > (long)30000) {
+                        runOnUiThread(() -> dumpingStatus.setText("Last usage duration " + duration + " ms. Dumping"));
+                    } else {
+                        runOnUiThread(() -> dumpingStatus.setText("Last usage duration " + duration + " ms. No dumping!"));
+                    }
                 }
 
                 @Override
