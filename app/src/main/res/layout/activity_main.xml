@@ -76,18 +76,25 @@
         android:textSize="24sp" />
 
     <TextView
-        android:id="@+id/temperatureBLE"
+        android:id="@+id/angularVelocityBLE"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="temperatureBLE"
+        android:text="angularVelocityBLE"
         android:textSize="24sp" />
 
-    <TextView
-        android:id="@+id/soundBLE"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="soundBLE"
-        android:textSize="24sp" />
+<!--    <TextView-->
+<!--        android:id="@+id/temperatureBLE"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="temperatureBLE"-->
+<!--        android:textSize="24sp" />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/soundBLE"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="soundBLE"-->
+<!--        android:textSize="24sp" />-->
 
     <TextView
         android:id="@+id/usage"
