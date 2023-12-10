@@ -223,6 +223,11 @@ public class MainActivity extends AppCompatActivity {
 //                            Log.d("discoverServices", "discoverServices");
                         }
                         runOnUiThread(() -> connectionStatus.setText("Connected to device!"));
+                    } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                        // try to reconnect
+                        Log.d("BluetoothGattCallback", "Disconnected from GATT server.");
+                        runOnUiThread(() -> connectionStatus.setText("Disconnected, try to reconnect"));
+                        connectToDevice(device); // Reconnect to device
                     }
                 }
 
