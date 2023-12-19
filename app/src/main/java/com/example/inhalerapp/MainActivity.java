@@ -45,6 +45,10 @@ import android.content.Context;
 import android.bluetooth.le.ScanRecord;
 import android.os.ParcelUuid;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 123;
     private BluetoothManager bluetoothManager;
@@ -84,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     private long usageStartTime = 0;
     private boolean isUsing = false;
     long duration = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("onCreate", "onCreate.");
@@ -246,9 +251,25 @@ public class MainActivity extends AppCompatActivity {
                             if (service.getUuid().toString().equals("fd09f5b1-5ebe-4df9-b2ef-b6d778ece98c")) {
                                 Log.d("UUID", "equals");
                                 runOnUiThread(() -> connectionStatus.setText("Reading characteristics!"));
-
-
-
+                                // Send a signal to Arduino
+                                BluetoothGattCharacteristic isCharacteristicsRead = service.getCharacteristic(UUID.fromString("9336826c-6f1d-42c9-9db6-7441b6254539"));
+                                if (isCharacteristicsRead != null) {
+                                    isCharacteristicsRead.setValue(String.valueOf(true));
+                                    Log.d("isCharacteristicsRead.setValue", "isCharacteristicsRead.setValue");
+                                    if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+                                        // TODO: Consider calling
+                                        //    ActivityCompat#requestPermissions
+                                        // here to request the missing permissions, and then overriding
+                                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                        //                                          int[] grantResults)
+                                        // to handle the case where the user grants the permission. See the documentation
+                                        // for ActivityCompat#requestPermissions for more details.
+                                        Log.d("no permission", "no permission");
+                                        return;
+                                    }
+                                    gatt.writeCharacteristic(isCharacteristicsRead);
+                                    Log.d("isCharacteristicsRead", "isCharacteristicsRead");
+                                }
 
                                 rBLEChar = service.getCharacteristic(UUID.fromString("69ef4849-ed83-4665-9fe0-852f3fc9f330"));
                                 gBLEChar = service.getCharacteristic(UUID.fromString("1a7a4154-bf0b-40a5-820e-0307aaf259b7"));
@@ -590,10 +611,14 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     // Decision tree for medication dumping detection
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+                    Date startTime = new Date(usageStartTime);
+//                    Log.d("startTime", sdf.format(startTime));
+                    Date currentTimeDate = new Date(System.currentTimeMillis());
                     if (duration > (long)30000) {
-                        runOnUiThread(() -> dumpingStatus.setText("Last usage duration " + duration + " ms. Dumping"));
+                        runOnUiThread(() -> dumpingStatus.setText("Used " + duration + " ms from " + sdf.format(startTime) + " to " + sdf.format(currentTimeDate) + ". Dumping!"));
                     } else {
-                        runOnUiThread(() -> dumpingStatus.setText("Last usage duration " + duration + " ms. No dumping!"));
+                        runOnUiThread(() -> dumpingStatus.setText("Used " + duration + " ms from " + sdf.format(startTime) + " to " + sdf.format(currentTimeDate) + ". No dumping"));
                     }
                 }
 
